@@ -7,9 +7,13 @@ function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/*
+                    동적 라우팅은 Route에 적어줘야함,
+                    쿼리스트링은 아님
+                */}
                 <Route path={"/"} element={<Home />} />
                 <Route path={"/search"} element={<Search />} />
-                <Route path={"/detail"} element={<Detail />} />
+                <Route path={`/detail/:id`} element={<Detail />} />
             </Routes>
         </BrowserRouter>
     )
