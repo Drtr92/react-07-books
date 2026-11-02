@@ -17,6 +17,11 @@ localhost   <=  호스트(도메인 or IP)
 5173    <=  포트  (통신을 주고받기 위해 논리적인 도로)
 
 /search    <=  경로
+    /search 만 들어와도 뜸
+    /search?a=10
+    /search?keyword=
+    /search?keyword=한글  <= 마찬가지로 뜸
+
 /product/상품번호   <=  경로 상에 존재하는 값을 동적 라우팅
                        동적 라우팅을 통해 react-router가 갖게된 값을 꺼내오는건
                        useParams() 
