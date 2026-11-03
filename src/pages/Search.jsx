@@ -23,7 +23,7 @@ function Search() {
             .then(json => setList(json.items))
             .catch(err => console.log(err))
             .finally(() => setLoading(false));
-    }, []);
+    }, [keyword]);
 
     return (
         <div className={styles.container}>
