@@ -27,7 +27,7 @@ function Home() {
         // URL은 사실 "영어"와 정해진 특수문자만 가능   => 사용자가 input에 어떤 걸 칠지 모르기 때문에 변환이 필요
         // string 값을 "주소"에 표현하기 위해 변환 작업을 해주는 명령 encodeURIComponent(스트링)
         navigate(`/search?keyword=${encodeURIComponent(k)}`);
-    };
+    }; // <= onSubmitHandler end.
 
     return (
         <div className={styles.container}>

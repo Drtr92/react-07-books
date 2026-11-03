@@ -1,4 +1,9 @@
 import { useSearchParams } from "react-router";
+import {useEffect, useState} from "react";
+
+// VITE 가 불러들여준 환경변수를 꺼낼 때는 function 밖에서!
+
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 function Search() {
     // Search 컴포넌트가 뜨는 상황은
@@ -21,6 +26,24 @@ function Search() {
     // 2. /search?a=10             => keyword의 타입 : null
     // 3. /search?keyword=         => keyword의 타입 : ""
     // 4. /search?keyword=Math     => keyword의 타입 : "Math"
+
+    // 백엔드에게 keyword를 이용하여 결과를 달라고 해서, 받아서, 가공해서, 저장
+    const [list, setList] = useState([]);
+
+    // Google Books API를 사용할 건데
+    // 누구나 사용할 수 있게 공개 API가 아님. 기존에 등록해둔 개발자만 사용할 수 있음
+    // 그렇게 등록을 하면 Token을 줌 (Github 과 같은 경우임)
+    // 요청을 보낼 때 토큰을 요청에 담아서 보내야 함
+
+    // Token은 "내 신분증"
+    // 외부에 노출될 가능성이 100%
+    // Token이나, 비밀번호 같은 민감한 정보는 코드에 포함시켜서는 안됨. 절대로.
+    // => 이러한 민감한 정보를 코드 상에 사용하지 않도록 존재하는 장치 => "환경변수"
+
+    useEffect(() => {
+        fetch(`https://www.googleapis.com/books/v1/volumes?q=${keyword}&maxResults=20&key=${API_KEY}`)
+            .then()
+            .then( => )},[]);
 
     return <></>;
 }
