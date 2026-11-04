@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import { API_KEY } from "./Search.jsx";
+import styles from "./Detail.module.css";
 
 function Detail () {
     const navigate = useNavigate();
@@ -27,19 +28,25 @@ function Detail () {
     // book의 값이 있는지 없는지만 체크해줘도 화면을 달리 그려줄 수 있음
 
     if (!book) {
-        return <div>loading...</div>
+        return <div className={styles.container}>loading...</div>
     }
 
-    return <div>
-        <button onClick={() => {
+    return (
+        <div className={styles.container}>
+        <button
+            className={styles.backBtn}
+            onClick={() => {
             // 사용자를 이동시키기 위해 뭘 써야되느냐
             navigate(-1);
         }}>&larr; 뒤로가기</button>
         <h2>{book.volumeInfo.title}</h2>
         {book.volumeInfo.imageLinks ? (
-            <img src={book.volumeInfo.imageLinks.thumbnail} alt={book.volumeInfo.title} />
+            <img
+                className={styles.cover}
+                src={book.volumeInfo.imageLinks.thumbnail}
+                alt={book.volumeInfo.title} />
         ) : (
-            <div>No cover</div>
+            <div className={styles.no_cover}>No cover</div>
         )}
         <p>{book.volumeInfo.authors?.join(", ")}</p>
         {/*
@@ -52,7 +59,8 @@ function Detail () {
             사용법 : dangerouslySetInnerHTML={{ __html: 내용 }}
         */}
         <p dangerouslySetInnerHTML={{ __html: book.volumeInfo.description }}></p>
-    </div>;
+    </div>
+    );
 }
 
 export default Detail
