@@ -14,6 +14,10 @@ function Detail () {
     // 백엔드에게 정보를 요청, 받아서, 가공하고, 저장해서, 출력
     const [book, setBook] = useState(null);
 
+    // useEffect는 초기 렌더링 전에는 실행되지 않음
+    // => 초기 렌더링이 끝난 직후, 1회 무조건 실행
+    //    화면이 바뀌어야 되는 상황이면 리렌더링
+
     useEffect(() => {
         fetch(`https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`)
             .then(res => res.json())
