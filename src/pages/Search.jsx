@@ -62,7 +62,7 @@ function Search() {
         <div className={styles.container}>
             <h3>검색결과 : {keyword}</h3>
 
-            <SearchBar />
+            <SearchBar keyword={keyword} />
 
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
