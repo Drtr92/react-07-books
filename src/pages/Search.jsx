@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
 
@@ -21,6 +21,16 @@ export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 function Search() {
     const [searchParams] = useSearchParams();
     const keyword = searchParams.get("keyword");
+    const navigate = useNavigate();
+    const [newKeyword, setNewKeyword] = useState("");
+
+    const handleKeyword = event => setNewKeyword(event.target.value);
+    const handleSubmitButton = event => {
+        event.preventDefault();
+        const k = newKeyword.trim();
+        if (!k) return;
+        navigate(`/search?keyword=${encodeURIComponent(k)}`);
+    };
 
     const [list, setList] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -43,10 +53,16 @@ function Search() {
         <div className={styles.container}>
             <h3>검색결과 : {keyword}</h3>
 
+            <form className={styles.dummy} onSubmit={handleSubmitButton}>
+                <input className={styles.dummy} onChange={handleKeyword} value={newKeyword} />
+                <button className={styles.dummy} type={"submit"}>
+                    검색
+                </button>
+            </form>
+
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>
-            ) : (
-            list.length === 0 ? (
+            ) : list.length === 0 ? (
                 <div className={styles.message}>검색 결과가 없습니다.</div>
             ) : (
                 list.map((item, i) => {
@@ -92,12 +108,13 @@ function Search() {
 
                                     저자가 없는 경우가 발생됨 => 옵셔널 체이닝 연산자
                                  */}
-                                <div className={styles.authors}>{item.volumeInfo.authors?.join(", ")}</div>
+                                <div className={styles.authors}>
+                                    {item.volumeInfo.authors?.join(", ")}
+                                </div>
                             </div>
                         </Link>
                     );
                 })
-                )
             )}
         </div>
     );
