@@ -1,31 +1,39 @@
 import { Link, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import styles from "./Search.module.css";
-import SearchBar from "../components/SearchBar.jsx";
+import SearchBar from "../components/SearchBar.tsx";
+
+export type Book = {
+    id: string;
+    volumeInfo: {
+        title: string;
+        authors?: string[];
+        description?: string;
+        imageLinks?: {
+            thumbnail: string;
+        };
+    };
+}
+
+// 선택적 프로퍼티를 표기하는 ? 는
+// 결국 "값이 애초부터 없다"는 undefined의 다른 말
+
+type ApiResponse = {
+    items: Book[];
+}
 
 export const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 function Search() {
+    // useParams > URL에서 "경로" 에 동적 라우팅으로 분류되는 부분
+    //           => useParams를 통해 가져오는 값은 string | Undefined 임
+    // useSearchParams > URL에서 "쿼리 스트링" 에 해당하는 부분
+    //           => useSearchParams 를 통해 가져오는 값은 string | null
     const [searchParams] = useSearchParams();
-    // useSearchParams 는 변형된 state임
-    // react-router는 쿼리스트링을 state를 만들어서 저장하고 있음
     const keyword = searchParams.get("keyword");
 
-    const [list, setList] = useState([]);
+    const [list, setList] = useState<Book[]>([]);
     const [loading, setLoading] = useState(false);
-
-    // useEffect(함수, [의존성배열])
-    // 의존성배열은 배열 안에 바뀔 수 있는 값을 갖고 있는 변수(state, 함수)를 요소로 가질 수 있으며,
-    // 의존성 배열에 집어넣은 변수가 바뀔 때 마다 useEffect는 함수를 재발동 시킴
-
-    /*
-        list 가 바뀔 때 마다 화면이 다시 그려진다
-        list 는 백엔드 에게서 받아오는 데이터 목록이다.
-        useEffect는 백엔드 에게서 받아오는 데이터 목록을 list에 담는다
-        useEffect는 keyword가 바뀔 때 마다 재발동된다.
-        keyword는 쿼리스트링의 값이 바뀔 때 마다 값을 갱신한다.
-        keyword는 사용자가 입력하여 검색해달라고 한 검색단이다.
-    */
 
     useEffect(() => {
         if (!keyword) return;
@@ -36,33 +44,35 @@ function Search() {
             `https://www.googleapis.com/books/v1/volumes?q=${keyword}&maxResults=20&key=${API_KEY}`,
         )
             .then(res => res.json())
-            .then(json => setList(json.items))
-            .catch(err => console.log(err))
+            .then((json: ApiResponse) => setList(json.items))
+            .catch((err: unknown) => {
+                if (err instanceof Error) {
+                    console.log(err.message);
+                } else {
+                    console.log(err);
+                }
+            })
             .finally(() => setLoading(false));
     }, [keyword]);
-
-    /*
-        검색 결과를 담당하는 Search 컴포넌트에서도 검색이 가능하도록
-        설계 변경 하니, Home에 있는 내용과 다르지 않음을 확인
-                      => Home에서 컴포넌트를 분리해서 수입 시켜야겠구나
-
-        컴포넌트가 그려지는 조건은 "주소"이긴 한데, 정확히는 "경로"의 변경
-        SearchBar에서 사용자가 키워드를 입력하고 검색을 시키면 주소가
-
-        https://localhost.5173/search?keyword=한글
-        ↘
-        https://localhost.5173/search?keyword=Math
-
-        경로가 변경되지 않고 쿼리스트링만 바뀌었기 때문에 Search라고 하는 컴포넌트가 다시 그려지지 않음.
-        이 말은, 검색을 사용자가 바꾸기 이전에 떠 있던 Search가 그대로 있다는 것
-        그렇기 때문에 리렌더링이 되지 않음 => useEffect가 발동되어서 검색 결과를 다시 받아와야 되는데 안함
-    */
 
     return (
         <div className={styles.container}>
             <h3>검색결과 : {keyword}</h3>
 
-            <SearchBar keyword={keyword} />
+            <SearchBar keyword={keyword || ""} />
+
+            {/*
+                useSearchParams, 쿼리스트링에서 가져온 값은 string | null 이기 때문에
+                searchBar 받을 수 있는 keyword 속성은 string만 가능함
+
+                에러내용 -----------
+                Type string | null is not assignable to type string
+                지금 이 자리는 string만 들어올 수 있는데 넣은게 string | null 이라서 안돼,
+
+                1. null 이 되는 상황 파악
+                2. 검색 키워드가 없다는거니까, 인풋에 넣을 값이 없다고 해석하면 되는 것
+                3. string인 "" 값으로 처리해줘도 아무런 문제가 없겠구나 => 논리합 처리
+            */}
 
             {loading ? (
                 <div className={styles.message}>로딩 중입니다...</div>

@@ -1,7 +1,8 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { API_KEY } from "./Search.jsx";
+import { API_KEY } from "./Search.tsx";
 import styles from "./Detail.module.css";
+import type { Book } from "./Search.tsx"
 
 function Detail () {
     const navigate = useNavigate();
@@ -12,7 +13,7 @@ function Detail () {
     const { id } = useParams();
 
     // 백엔드에게 정보를 요청, 받아서, 가공하고, 저장해서, 출력
-    const [book, setBook] = useState(null);
+    const [book, setBook] = useState< Book | null >(null);
 
     // useEffect는 초기 렌더링 전에는 실행되지 않음
     // => 초기 렌더링이 끝난 직후, 1회 무조건 실행
@@ -21,8 +22,14 @@ function Detail () {
     useEffect(() => {
         fetch(`https://www.googleapis.com/books/v1/volumes/${id}?key=${API_KEY}`)
             .then(res => res.json())
-            .then(json => setBook(json))
-            .catch(err => console.log(err));
+            .then((json: Book) => setBook(json))
+            .catch((err: unknown) => {
+                if (err instanceof Error) {
+                    console.log(err.message);
+                } else {
+                    console.log(err);
+                }
+            });
     },[id])
 
     // Search 컴포넌트에서는 list가 초기값도 [], 값이 도착해도 [], 값이 도착하지 않아도 []
@@ -37,23 +44,26 @@ function Detail () {
 
     return (
         <div className={styles.container}>
-        <button
-            className={styles.backBtn}
-            onClick={() => {
-            // 사용자를 이동시키기 위해 뭘 써야되느냐
-            navigate(-1);
-        }}>&larr; 뒤로가기</button>
-        <h2>{book.volumeInfo.title}</h2>
-        {book.volumeInfo.imageLinks ? (
-            <img
-                className={styles.cover}
-                src={book.volumeInfo.imageLinks.thumbnail}
-                alt={book.volumeInfo.title} />
-        ) : (
-            <div className={styles.no_cover}>No cover</div>
-        )}
-        <p>{book.volumeInfo.authors?.join(", ")}</p>
-        {/*
+            <button
+                className={styles.backBtn}
+                onClick={() => {
+                    // 사용자를 이동시키기 위해 뭘 써야되느냐
+                    navigate(-1);
+                }}>
+                &larr; 뒤로가기
+            </button>
+            <h2>{book.volumeInfo.title}</h2>
+            {book.volumeInfo.imageLinks ? (
+                <img
+                    className={styles.cover}
+                    src={book.volumeInfo.imageLinks.thumbnail}
+                    alt={book.volumeInfo.title}
+                />
+            ) : (
+                <div className={styles.no_cover}>No cover</div>
+            )}
+            <p>{book.volumeInfo.authors?.join(", ")}</p>
+            {/*
             태그들에게 dangerouslySetInnerHTML 속성을 사용할 수 있음
             - 기본적으로 리액트 에서는 '개발자'가 사용한 태그 외에는
               태그 형식이더라도 string으로 처리하여 화면에 출력함
@@ -61,9 +71,12 @@ function Detail () {
             - 이 속성을 사용할 때에는 주의가 필요함 => 필요하면 그냥 하는거
 
             사용법 : dangerouslySetInnerHTML={{ __html: 내용 }}
+
+            '--html에서 오류'
+            Type string | undefined is not assignable to type string | TrustedHTML
         */}
-        <p dangerouslySetInnerHTML={{ __html: book.volumeInfo.description }}></p>
-    </div>
+            <p dangerouslySetInnerHTML={{ __html: book.volumeInfo.description || "" }}></p>
+        </div>
     );
 }
 
